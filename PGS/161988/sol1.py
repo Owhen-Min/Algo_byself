@@ -1,4 +1,5 @@
 def solution(sequence):
+    sequence = [0] + sequence
     # 짝수번째 지수마다 -1을 곱한다. 반대의 경우는 음수를 곱하여 생각할 예정임.
     for i in range(1, len(sequence), 2):
         sequence[i] *= -1
@@ -17,7 +18,4 @@ def solution(sequence):
         max_num2 = max(sequence[:sequence.index(min_num2)])
     else: max_num2 = 0
     answer2 = -(min_num2 - max_num2)
-    print(answer1, answer2)
     return max(answer1, answer2)
-
-
