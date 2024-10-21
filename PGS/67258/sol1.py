@@ -7,9 +7,8 @@ def solution(gems):
     i= 0
     kinds = 0
     answer = deque()
-    while
-
-
+    while True:
+        pass
     answer = sorted(answer,key= lambda x: (x[1], x[0]))
     return answer[0]
 
