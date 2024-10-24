@@ -1,23 +1,43 @@
-def solution(sequence):
-    # 짝수번째 지수마다 -1을 곱한다. 반대의 경우는 음수를 곱하여 생각할 예정임.
-    for i in range(1, len(sequence), 2):
-        sequence[i] *= -1
-    # 0번부터 쭉 더한 값을 list에 담는다. 그 앞에 있는 수를 빼면 부분합을 구할 수 있다.
-    for i in range(1, len(sequence)):
-        sequence[i] += sequence[i - 1]
-
-    max_num = max(sequence)
-    if sequence.index(max_num):
-        min_num = min(sequence[:sequence.index(max_num)])
-    else: min_num = 0
-    answer1 = max_num - min_num
-
-    min_num2 = min(sequence)
-    if sequence.index(min_num2):
-        max_num2 = max(sequence[:sequence.index(min_num2)])
-    else: max_num2 = 0
-    answer2 = -(min_num2 - max_num2)
-    print(answer1, answer2)
-    return max(answer1, answer2)
+from functools import reduce
+from itertools import combinations
 
 
+def xnor(n1, n2, bit):
+    num = [0]*bit
+    for i in range(bit):
+        num[i] = '1' if n1[i]==n2[i] else '0'
+    return ''.join(num)
+
+
+def binary(number):
+    i = 0
+    b = ''
+    while i != bit:
+        b = str(number % 2) + b
+        number //= 2
+        i += 1
+    return b
+
+
+def btn(binary_num):
+    return sum(int(binary_num[i])<<(bit-1-i) for i in range(bit))
+
+
+n, bit = map(int, input().split())
+ls = list(map(binary,map(int,input().split())))
+combis = combinations(range(n+1), 2)
+max_xnor = 0
+for x, y in combis:
+    if y-x > 1:
+        value = reduce(lambda x, y: xnor(x,y,bit), ls[x:y])
+    else:
+        value = ls[x]
+    int_value = btn(value)
+    if max_xnor < int_value:
+        max_xnor = int_value
+print(max_xnor)
+
+'''
+5 3
+1 2 3 4 5
+'''
