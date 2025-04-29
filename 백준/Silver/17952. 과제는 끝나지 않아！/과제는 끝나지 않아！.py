@@ -1,29 +1,22 @@
-# 뒤에서부터 생각하기.
-# 뒤에 남은 시간보다 이번에 맞닥뜨린 일이 더 길다면, 새로운 일을 만나기 전까지는 아무런 진전이 없을 것임.
-# 따라서 일을 가지고 남은 시간을 생각하면서 뒤에서부터 하나하나 풀 수 있는 과제인지, 못 푸는 과제인지 따지기.
-
 import sys
-from collections import deque
-
 input = sys.stdin.readline
 
 n = int(input())
-stack = deque()
-ans = 0
+stack = []  # 현재 하고 있는 과제만 관리
+ans = 0     # 최종 점수
 
-for i in range(n):
-    index, *info = map(int, input().split())
-    if info:
-        stack.append((i, info))
-
-last = n
-
-while stack:
-    time, (score, burden) = stack.pop()
-    if last >= burden + time:
-        ans += score
-        last -= burden
-    else:
-        last = time
+for _ in range(n):
+    query = list(map(int, input().split()))
+    
+    if query[0] == 1:
+        score, time = query[1], query[2]
+        stack.append([score, time])  # 새로운 과제를 시작
+    if stack:
+        # 지금 하고 있는 과제 진행 (1분 소요)
+        stack[-1][1] -= 1
+        if stack[-1][1] == 0:
+            # 과제 완료
+            ans += stack[-1][0]
+            stack.pop()
 
 print(ans)
