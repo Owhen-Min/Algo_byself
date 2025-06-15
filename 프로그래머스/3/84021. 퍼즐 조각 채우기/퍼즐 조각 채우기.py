@@ -1,79 +1,98 @@
+from collections import Counter
+from dataclasses import dataclass
+from itertools import product
+
+
+@dataclass(frozen=True)
+class Pos:
+    x: int
+    y: int
+
+    def neighbors(self):
+        return [
+            Pos(self.x, self.y - 1),
+            Pos(self.x + 1, self.y),
+            Pos(self.x, self.y + 1),
+            Pos(self.x - 1, self.y),
+        ]
+
+
+def make_tile_from_positions(positions):
+    """Smallest possible representation with rotation"""
+
+    def rotate90(tile):
+        return tuple(
+            tuple(tile[i][j] for i in range(len(tile)))
+            for j in reversed(range(len(tile[0])))
+        )
+
+    positions = set(positions)
+
+    xs = [pos.x for pos in positions]
+    min_x = min(xs)
+    max_x = max(xs)
+
+    ys = [pos.y for pos in positions]
+    min_y = min(ys)
+    max_y = max(ys)
+
+    tile_representations = [
+        tuple(
+            tuple(Pos(i, j) in positions for j in range(min_y, max_y + 1))
+            for i in range(min_x, max_x + 1)
+        )
+    ]
+
+    for __ in range(3):
+        tile_representations.append(rotate90(tile_representations[-1]))
+
+    return min(tile_representations)
+
+
+def get_tile_size(tile):
+    return sum(sum(row) for row in tile)
+
+
+def parse_tiles(board, tile_value=1):
+    n = len(board)
+
+    # Add sentinel boundaries
+    sentinel = 1 - tile_value
+
+    board = [
+        [sentinel] * (n + 2),
+        *([sentinel] + row + [sentinel] for row in board),
+        [sentinel] * (n + 2),
+    ]
+
+    # Detect tiles
+    tile_positions = []
+    for i, j in product(range(1, n + 1), range(1, n + 1)):
+        if board[i][j] == tile_value:
+            stack = [Pos(i, j)]
+            squares = []
+            while stack:
+                curr = stack.pop()
+                board[curr.x][curr.y] = sentinel
+                squares.append(curr)
+                for neighbor in curr.neighbors():
+                    if board[neighbor.x][neighbor.y] == tile_value:
+                        stack.append(neighbor)
+            tile_positions.append(squares)
+
+    # Make tiles
+    tiles = [make_tile_from_positions(p) for p in tile_positions]
+
+    return tiles
+
+
 def solution(game_board, table):
-    from collections import defaultdict
-    
-    def dfs(board, start_y, start_x, target, visited):
-        points = []
-        stack = [(start_y, start_x)]
-        visited[start_y][start_x] = True
-        
-        while stack:
-            y, x = stack.pop()
-            points.append((y, x))
-            
-            for dy, dx in [(0,1), (0,-1), (1,0), (-1,0)]:
-                ny, nx = y + dy, x + dx
-                if (0 <= ny < len(board) and 0 <= nx < len(board[0]) and 
-                    not visited[ny][nx] and board[ny][nx] == target):
-                    visited[ny][nx] = True
-                    stack.append((ny, nx))
-        
-        return points
-    
-    def normalize_shape(points):
-        if not points:
-            return tuple()
-        min_y = min(p[0] for p in points)
-        min_x = min(p[1] for p in points)
-        normalized = [(p[0] - min_y, p[1] - min_x) for p in points]
-        return tuple(sorted(normalized))
-    
-    def get_all_rotations(points):
-        rotations = []
-        current = points
-        
-        for _ in range(4):
-            rotations.append(normalize_shape(current))
-            # 90도 회전: (y, x) -> (-x, y)
-            current = [(-p[1], p[0]) for p in current]
-        
-        return rotations
-    
-    n = len(game_board)
-    
-    # 빈 공간 찾기
-    blanks = defaultdict(int)
-    visited = [[False] * n for _ in range(n)]
-    
-    for i in range(n):
-        for j in range(n):
-            if game_board[i][j] == 0 and not visited[i][j]:
-                blank_points = dfs(game_board, i, j, 0, visited)
-                if blank_points:
-                    # 상대 좌표로 변환
-                    relative = [(p[0] - blank_points[0][0], p[1] - blank_points[0][1]) 
-                               for p in blank_points]
-                    shape = normalize_shape(relative)
-                    blanks[shape] += 1
-    
-    # 조각 찾기 및 매칭
-    answer = 0
-    visited = [[False] * n for _ in range(n)]
-    
-    for i in range(n):
-        for j in range(n):
-            if table[i][j] == 1 and not visited[i][j]:
-                piece_points = dfs(table, i, j, 1, visited)
-                if piece_points:
-                    # 상대 좌표로 변환
-                    relative = [(p[0] - piece_points[0][0], p[1] - piece_points[0][1]) 
-                               for p in piece_points]
-                    rotations = get_all_rotations(relative)
-                    
-                    # 매칭 시도
-                    for rotation in rotations:
-                        if blanks[rotation] > 0:
-                            blanks[rotation] -= 1
-                            answer += len(piece_points)
-                            break
-    
-    return answer
+    tiles = parse_tiles(table, 1)
+    empty_spaces = parse_tiles(game_board, 0)
+
+    tile_counter = Counter(tiles)
+    empty_space_counter = Counter(empty_spaces)
+
+    used_tiles = tile_counter & empty_space_counter
+
+    return sum(get_tile_size(tile) * occ for tile, occ in used_tiles.items())
