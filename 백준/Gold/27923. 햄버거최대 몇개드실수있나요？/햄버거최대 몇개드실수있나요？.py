@@ -4,18 +4,14 @@ input = sys.stdin.readline
 n, k, l = map(int, input().split())
 h_list = sorted(list(map(int, input().split())))
 
-tmp = [0]*(n+1)
-for i in map(int, input().split()):
-    tmp[i]+=1
-for i in range(1,n+1):
-    tmp[i] +=tmp[i-1]
-
 effect = [0]*n
-for i in range(1,n+1):
-    if i<l:
-        effect[i-1] = tmp[i]
-    else:
-        effect[i-1] = tmp[i]-tmp[i-l]
+for i in map(int, input().split()):
+    effect[i-1]+=1
+    if i+l <= n:
+        effect[i+l-1] -= 1
+
+for i in range(1,n):
+    effect[i] += effect[i-1]
 effect.sort()
 
 
