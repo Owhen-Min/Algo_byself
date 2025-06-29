@@ -1,21 +1,15 @@
-import sys
-input = sys.stdin.readline
-
 n, k, l = map(int, input().split())
-diff = [0] * n
-m = sorted(map(int, input().split()))
+h = sorted(list(map(int, input().split())))
 
-for num in map(int, input().split()):
-    diff[num-1] += 1
-    if num + l <= n:
-        diff[num+l-1] -= 1
+effect = [0]*(n)
+for i in map(int, input().split()):
+    effect[i-1]+=1
+    if i+l <= n:
+        effect[i+l-1] -= 1
 
-for i in range(1, n):
-    diff[i] += diff[i-1]
+for i in range(1,n):
+    effect[i] += effect[i-1]
+effect.sort()
 
-diff.sort()
-
-result = 0
-for i in range(n):
-    result += m[i] >> diff[i]
+result = sum(h[j] >> effect[j] for j in range(n) if effect[j] <64)
 print(result)
