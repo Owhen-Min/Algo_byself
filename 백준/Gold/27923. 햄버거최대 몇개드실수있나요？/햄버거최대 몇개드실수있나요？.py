@@ -1,21 +1,15 @@
-import sys
-input = sys.stdin.readline
-
 n, k, l = map(int, input().split())
-diff = [0] * n
-m = sorted(map(int, input().split()))
+h = sorted(list(map(int, input().split())))
 
-for num in map(int, input().split()):
-    diff[num-1] += 1
-    if num + l <= n:
-        diff[num+l-1] -= 1
+e = [0]*(n)
+for i in map(int, input().split()):
+    e[i-1]+=1
+    if i+l <= n:
+        e[i+l-1] -= 1
 
-for i in range(1, n):
-    diff[i] += diff[i-1]
+for i in range(1,n):
+    e[i] += e[i-1]
+e.sort()
 
-diff.sort()
-
-result = 0
-for i in range(n):
-    result += m[i] >> diff[i]
+result = sum(h[j] >> e[j] for j in range(n) if e[j] <30)
 print(result)
