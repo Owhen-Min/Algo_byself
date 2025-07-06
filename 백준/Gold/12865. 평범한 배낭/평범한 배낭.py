@@ -1,18 +1,11 @@
-from collections import defaultdict
+n, k = map(int, input().split())
 
-n, k = map(int,input().split())
+arr = sorted(tuple(map(int, input().split())) for _ in range(n))
 
-dd = defaultdict(int)
-dd[0] = 0
+dp = [0] * (k+1)
 
-objects = tuple(map(int,input().split()) for _ in range(n))
+for w, v in arr:
+    for j in range(k,w-1, -1): #무게
+        dp[j] = max(dp[j], dp[j-w]+v)
 
-for w, v in objects:
-    new_d = dict()
-    prev_items = dict(dd.items())
-    for old_w, old_v in prev_items.items():
-        if w+old_w <= k and v+old_v > dd[w+old_w]:
-            new_d[w+old_w]= v+old_v
-    dd.update(new_d)
-
-print(max(dd.values()))
+print(dp[k])
