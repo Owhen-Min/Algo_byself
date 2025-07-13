@@ -1,5 +1,6 @@
 import sys
 input = sys.stdin.readline
+print = sys.stdout.write
 
 n = int(input())
 ls = list(map(int, input().split()))
@@ -20,9 +21,6 @@ for length in range(2, n+1):
                 dp[start][end] = 1
 
 m = int(input())
-ans = [0]*m
 for _ in range(m):
     s, e = map(int, input().split())
-    ans[_] = dp[s-1][e-1]
-
-print("\n".join(map(str,ans)))
+    print(str(dp[s-1][e-1])+"\n")
