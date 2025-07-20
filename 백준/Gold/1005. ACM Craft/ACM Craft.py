@@ -1,48 +1,47 @@
-from collections import defaultdict
-from heapq import heappush, heappop, heapify
 import sys
+
 input = sys.stdin.readline
+from collections import deque
 
 for _ in range(int(input())):
-    n, k = map(int,input().split())
-    # 위상정렬을 위한 빈 리스트 buildings
-    buildings = [0]*n
+    n, k = map(int, input().split())
 
-    # 건물을 짓는 데 드는 시간을 담을 변수 times
-    times = tuple(map(int,input().split()))
+    dp = [0] * (n + 1)
+    times = [0] + list(map(int, input().split()))
 
-    # 건물이 완성되고 나서 제약사항을 확인할 dict orders
-    orders = defaultdict(list)
+    # 그래프 구성
+    graph = [[] for _ in range(n + 1)]
+    indegree = [0] * (n + 1)
 
     for __ in range(k):
-        x, y = map(int,input().split())
-        orders[x-1].append(y-1)
-        buildings[y-1] += 1
+        x, y = map(int, input().split())
+        graph[x].append(y)  # x -> y
+        indegree[y] += 1  # y의 진입 차수 증가
 
-    target = int(input()) -1
+    target = int(input())
 
-    ans = 0
+    # 위상 정렬 시작
+    queue = deque()
 
-    # 현재 지어지고 있는 건물의 리스트를 담을 inbuild
-    inbuild = [[times[index], index] for index, enter in enumerate(buildings) if enter == 0]
+    # 진입 차수가 0인 노드를 큐에 삽입
+    for i in range(1, n + 1):
+        if indegree[i] == 0:
+            queue.append(i)
+            dp[i] = times[i]  # 시작 노드의 시간 초기화
 
-    # 가장 시간이 적게 드는 애 기준으로 나머지 애들의 시간을 줄여줄거니까 heap 구조로 만듦.
-    heapify(inbuild)
+    # 위상 정렬 수행
+    while queue:
+        curr = queue.popleft()
 
-    while True:
-        build_time, curr = heappop(inbuild)
+        for nxt in graph[curr]:
+            # 현재 노드를 거쳐가는 경우의 시간을 계산
+            dp[nxt] = max(dp[nxt], dp[curr] + times[nxt])
 
-        ans += build_time
-        if curr == target:
-            break
+            # 진입 차수 감소
+            indegree[nxt] -= 1
 
-        if build_time:
-            inbuild = [[x[0] - build_time, x[1]] for x in inbuild]
+            # 진입 차수가 0이 되면 큐에 삽입
+            if indegree[nxt] == 0:
+                queue.append(nxt)
 
-        for nxt in orders[curr]:
-            buildings[nxt] -= 1
-            if buildings[nxt] == 0:
-                heappush(inbuild, [times[nxt], nxt])
-
-
-    print(ans)
+    print(dp[target])
