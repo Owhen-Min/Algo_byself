@@ -1,4 +1,3 @@
-from collections import deque
 import sys
 input = sys.stdin.readline
 
@@ -15,16 +14,20 @@ for _ in range(m):
     indegree[e] += 1
 
 # 진입차수가 0인 (얘보다 더 작을 애가 없는) 애들은 다 때려 넣는다
-q = deque([i for i in range(1,n+1) if indegree[i] == 0])
+q = [i for i in range(1,n+1) if indegree[i] == 0]
 ans = []
 
 while q:
-    curr = q.popleft()
-    ans.append(curr)
+    # 진입차수가 0이 될 애들만 모아두는 nq
+    nq = []
+    for x in q:
+        for nxt in graph[x]:
+            indegree[nxt] -= 1
+            if indegree[nxt] == 0:
+                nq.append(nxt)
 
-    for nxt in graph[curr]:
-        indegree[nxt] -= 1
-        if indegree[nxt] == 0:
-            q.append(nxt)
+    # 기존에 이미 진입차수가 0인 애들을 한번에 ans 배열에 넣고, 초기화 한다
+    ans.extend(q)
+    q = nq
 
 print(*ans)
