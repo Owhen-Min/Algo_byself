@@ -1,34 +1,59 @@
-n, m = map(int,input().split())
+import sys
+input = sys.stdin.readline
 
-# 인접그래프 생성
-edges = dict()
-for i in range(1,n+1):
-    edges[i] = []
-for _ in range(n-1):
-    node1, node2, cost = map(int,input().split())
-    edges[node1].append((node2, cost))
-    edges[node2].append((node1, cost))
+N, M = map(int, input().split())
 
-# dists[시작노드][끝노드] = 시작노드에서 끝노드로 가는 거리
-dists = [[10000000]*(n+1) for _ in range(n+1)]
-dists[0] = []
+# 1. 인접 리스트 생성
+edges = [[] for _ in range(N+1)]
+for _ in range(N-1):
+    a, b, w = map(int, input().split())
+    edges[a].append((b, w))
+    edges[b].append((a, w))
 
-def djk(node):
-    from collections import deque
-    dists[node][node] = 0
-    q = deque([node])
+LOG = 10  # 2^10 = 1024 > 1000
+parent = [[0]*(N+1) for _ in range(LOG)]
+depth = [0]*(N+1)
+dist = [0]*(N+1)  # 루트로부터의 거리
 
-    while q:
-        curr = q.popleft()
-        curr_cost = dists[node][curr]
-        for nxt, dist in edges[curr]:
-            if dists[node][nxt] == 10000000:
-                 dists[node][nxt] = curr_cost + dist
-                 q.append(nxt)
+# 2. DFS로 depth, parent[0], dist 계산
+def dfs(v, p):
+    for nxt, w in edges[v]:
+        if nxt != p:
+            depth[nxt] = depth[v] + 1
+            parent[0][nxt] = v
+            dist[nxt] = dist[v] + w
+            dfs(nxt, v)
 
-for i in range(1,n+1):
-    djk(i)
+dfs(1, 0)  # 루트를 1로 설정
 
-for j in range(m):
-    a, b = map(int,input().split())
-    print(dists[a][b])
+# 3. parent[k] 채우기
+for k in range(1, LOG):
+    for v in range(1, N+1):
+        parent[k][v] = parent[k-1][parent[k-1][v]]
+
+# 4. LCA 함수
+def lca(a, b):
+    # 깊이 맞추기
+    if depth[a] < depth[b]:
+        a, b = b, a
+    diff = depth[a] - depth[b]
+    for k in range(LOG):
+        if diff & (1 << k):
+            a = parent[k][a]
+
+    if a == b:
+        return a
+
+    # 위로 올리기
+    for k in reversed(range(LOG)):
+        if parent[k][a] != parent[k][b]:
+            a = parent[k][a]
+            b = parent[k][b]
+
+    return parent[0][a]
+
+# 5. 쿼리 처리
+for _ in range(M):
+    a, b = map(int, input().split())
+    c = lca(a, b)
+    print(dist[a] + dist[b] - 2 * dist[c])
