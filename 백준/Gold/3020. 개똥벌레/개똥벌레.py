@@ -16,13 +16,17 @@ for _ in range(n//2):
     imos[h] -= 1
 
 # 누적합으로 각 높이마다 걸리는 장애물 개수 계산
-curr = 0
-result = []
-for i in range(h):
-    curr += imos[i]
-    result.append(curr)
+for i in range(1, h):
+    imos[i] += imos[i-1]
 
-# 최소값과 개수 찾기
-ans = min(result)
-count = result.count(ans)
+ans, count = 500000, 0
+
+for k in range(h):
+    curr = imos[k]
+    if ans > curr:
+        ans = curr
+        count = 1
+    elif ans == curr:
+        count += 1
+
 print(ans, count)
