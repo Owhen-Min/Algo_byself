@@ -14,10 +14,8 @@ def can_divide(target, max_tries):
         if max_sec - min_sec > target:
             min_sec = max_sec = arr[i]
             cnt += 1
-            if cnt > max_tries:
-                return False
 
-    return True
+    return cnt <= max_tries
 
 while left <= right:
     mid = (left+right)//2
