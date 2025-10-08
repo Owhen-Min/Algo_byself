@@ -1,30 +1,34 @@
 import sys
 input = sys.stdin.readline
-from collections import deque
 
-n, m = map(int,input().split())
+n, m = map(int, input().split())
+shelters = [0] + list(map(int, input().split()))
 
-shelters = [0] + list(map(int,input().split()))
-# graph[a] = a에서 출발할 수 있는 다른 쉼터들
-graph = [[] for _ in range(n+1)]
+graph = [[] for _ in range(n + 1)]
+indegree = [0] * (n + 1)
 
+# 방향 그래프 구성
 for _ in range(m):
-    a, b = map(int,input().split())
+    a, b = map(int, input().split())
     if shelters[a] > shelters[b]:
-        graph[b].append(a)
-    else:
         graph[a].append(b)
+        indegree[b] += 1
+    else:
+        graph[b].append(a)
+        indegree[a] += 1
 
-visited = [1 if not a else 0 for a in graph]
+# dp[i] = i번 쉼터까지 이동 가능한 최대 거리
+dp = [1] * (n + 1)
 
-q = deque(i for i in range(1,n+1) if not visited[i])
+# 위상정렬
+q = [i for i in range(1, n + 1) if indegree[i] == 0]
 
 while q:
-    curr = q.popleft()
-    flag = False
-    if all(visited[nxt] for nxt in graph[curr]):
-        visited[curr] = max(visited[nxt] for nxt in graph[curr]) + 1
-    else:
-        q.append(curr)
+    curr = q.pop()
+    for nxt in graph[curr]:
+        dp[nxt] = max(dp[nxt], dp[curr] + 1)
+        indegree[nxt] -= 1
+        if indegree[nxt] == 0:
+            q.append(nxt)
 
-print("\n".join(map(str,visited[1:])))
+print("\n".join(map(str, dp[1:])))
