@@ -21,14 +21,14 @@ for _ in range(m):
 dp = [1] * (n + 1)
 
 # 위상정렬
-q = [i for i in range(1, n + 1) if indegree[i] == 0]
+stack = [i for i in range(1, n + 1) if indegree[i] == 0]
 
-while q:
-    curr = q.pop()
+while stack:
+    curr = stack.pop()
     for nxt in graph[curr]:
         dp[nxt] = max(dp[nxt], dp[curr] + 1)
         indegree[nxt] -= 1
         if indegree[nxt] == 0:
-            q.append(nxt)
+            stack.append(nxt)
 
 print("\n".join(map(str, dp[1:])))
