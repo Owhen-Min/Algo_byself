@@ -1,17 +1,18 @@
-import sys
-sys.setrecursionlimit(10000)
-
 def solution(k, room_number):
+    answer = []
     rooms = dict()
     
-    def find_rooms(room):
+    for room in room_number:
         if room not in rooms:
             rooms[room] = room+1
-            return room
-        
-        empty = find_rooms(rooms[room])
-        rooms[room] = empty+1
-        
-        return empty
-    
-    return list(map(find_rooms,room_number))
+        else:
+            visited = [room]
+            while room in rooms:
+                room = rooms[room]
+                visited.append(room)
+            
+            for trace in visited:
+                rooms[trace] = room+1
+                
+        answer.append(room)
+    return answer
