@@ -1,23 +1,20 @@
 n, s = map(int,input().split())
-seq = list(map(int,input().split()))
-hap = seq[0]
-left = 0
-right = 1
-ans = 10e9
+ls = list(map(int,input().split()))
 
+i, j = 0, 0
+hap = ls[0]
+ans = n+1
 while True:
-    if hap >= s:
-        ans = min(ans, right-left)
-        hap -= seq[left]
-        left += 1
+    if hap < s:
+        j += 1
+        if j == n: break
+        else: hap += ls[j]
     else:
-        if right == n:
-            break
-        hap += seq[right]
-        right += 1
+        hap -= ls[i]
+        ans = min(ans, j-i+1)
+        i += 1
 
-if ans == 10e9:
-    print(0)
-else:
-    print(ans)
+if ans == n+1:
+    ans = 0
 
+print(ans)
