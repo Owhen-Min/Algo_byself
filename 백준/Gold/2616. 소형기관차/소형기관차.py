@@ -13,13 +13,13 @@ for i in range(1, accu_len):
 
 dp = [[0]*accu_len for _ in range(3)]
 
-
-for i in range(accu_len):
+dp[0][0] = accu[0]
+for i in range(1,accu_len):
     curr = accu[i]
-    dp[0][i] = curr
+    dp[0][i] = max(curr, dp[0][i-1])
     if i-c>=0:
-        dp[1][i] = max(dp[0][:i-c+1]) + curr
+        dp[1][i] = max(dp[1][i-1], dp[0][i-c] + curr)
         if i-2*c>=0:
-            dp[2][i] = max(max(dp[1][:i-c+1]) + curr,dp[2][i-1])
+            dp[2][i] = max(dp[2][i-1], dp[1][i-c] + curr)
 
 print(dp[2][accu_len-1])
