@@ -2,7 +2,8 @@ import heapq
 
 n, m = map(int,input().split())
 baits = sorted(map(int,input().split()))
-fish = sorted(f for f in map(int,input().split()) if f >= baits[0])
+fish = sorted(f for f in map(int,input().split()) if f > baits[0])
+m = len(fish)
 
 i = j = 0
 ans = 0
@@ -11,7 +12,7 @@ caught = []
 while j<m:
     # 떡밥으로 물고기를 잡을 수 있을 때 > 무조건 잡는디!
     if i<n and baits[i] < fish[j]:
-        caught.append(fish[j])
+        heapq.heappush(caught, fish[j])
         ans += fish[j]
         i += 1
         j += 1
