@@ -16,6 +16,7 @@ for _ in range(m):
 
 ans = []
 q = [i for i in range(1,n+1) if procedure[i] < 1]
+heapq.heapify(q)
 
 while q:
     curr = heapq.heappop(q)
